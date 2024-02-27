@@ -15,7 +15,11 @@ echo =========================================================
 echo.
 echo Welcome to Veroni, the custom automatic package installer
 echo.
+echo Please, before running the following script, get sure:
+echo - to have already launched at least one time the command 'winget update' to accept Terms
+echo - to have 'curl' command installed
 echo =========================================================
+timeout /t 2 >nul
 echo.
 echo.
 echo ^*^*^*^*^*^*^*^*^*^* Process starting ^*^*^*^*^*^*^*^*^*^*
@@ -33,12 +37,8 @@ goto :update
 echo ^>^>^>^>^>^>^>^>^>^> Installation of custom packages
 echo.
 echo -- Installation of Chocolatey package manager ...
-set myString=Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
->nul powershell -Command "& {param([string]$arg); Write-Host 'Argument received: ' $arg}" "%myString%"
-echo -V DONE
-echo -- Installation of curl ...
-choco install curl >nul
-echo -V DONE
+@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+echo -V DONE, please notice that a new terminal must be open to use 'choco' command
 echo -- Installation of Python 3.12.0 ...
 curl -O https://www.python.org/ftp/python/3.12.0/python-3.12.0-amd64.exe
 set myString=Start-Process -Wait -FilePath .\python-3.12.0-amd64.exe
@@ -117,7 +117,7 @@ exit /b 0
 :update
 	echo ^>^>^>^>^>^>^>^>^>^> Checking and updating installed packages
 	echo.
-	winget upgrade --all --include-unknown >nul
+	winget upgrade --all --include-unknown
 	if not %errorlevel% equ 0 (
 		echo.
 		echo -- An error occured during the checking or installation of updates
@@ -137,7 +137,7 @@ echo ^>^>^>^>^>^>^>^>^>^> Checking administrative privileges
 >nul 2>&1 net session
 if not %errorlevel% equ 0 (
 	echo.
-    echo -- The process is not running with administrative privileges.
+    echo -- The process is not running with administrative privileges. Those are needed to install certain applications.
 	echo -- Please reload the application with administrative privileges.
 	echo.
 	goto :error_failing

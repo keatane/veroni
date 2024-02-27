@@ -15,7 +15,11 @@ echo =========================================================
 echo.
 echo Welcome to Veroni, the custom automatic package installer
 echo.
+echo Please, before running the following script, get sure:
+echo - to have already launched at least one time the command 'winget update' to accept Terms
+echo - to have 'curl' command installed
 echo =========================================================
+timeout /t 2 >nul
 echo.
 echo.
 echo ^*^*^*^*^*^*^*^*^*^* Process starting ^*^*^*^*^*^*^*^*^*^*
@@ -23,8 +27,7 @@ echo.
 
 cd C:\Program Files
 
-goto :check_administrative
-:ok_administrative
+rem administrative privileges are not required for the following applications
 
 goto :update
 :ok_update
@@ -86,7 +89,7 @@ rem checking for updates to current installed packages and programs
 :update
 echo ^>^>^>^>^>^>^>^>^>^> Checking and updating installed packages
 echo.
-winget upgrade --all --include-unknown >nul
+winget upgrade --all --include-unknown
 if not %errorlevel% equ 0 (
 	echo.
     echo -- An error occured during the checking or installation of updates
@@ -99,21 +102,5 @@ echo ^>^>^>^>^>^>^>^>^>V DONE
 echo.
 echo.
 goto :ok_update
-
-rem checking if process has started with administrative privileges
-:check_administrative
-echo ^>^>^>^>^>^>^>^>^>^> Checking administrative privileges
->nul 2>&1 net session
-if not %errorlevel% equ 0 (
-	echo.
-    echo -- The process is not running with administrative privileges.
-	echo -- Please reload the application with administrative privileges.
-	echo.
-	goto :error_failing
-)
-echo ^>^>^>^>^>^>^>^>^>V DONE
-echo.
-echo.
-goto :ok_administrative
 
 :eof
